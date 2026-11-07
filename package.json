@@ -1,0 +1,15 @@
+{
+  "name": "challenge-sdet",
+  "version": "1.0.0",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test": "cypress run"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "cypress": "^16.2.1",
+    "typescript": "^7.0.2"
+  }
+}
