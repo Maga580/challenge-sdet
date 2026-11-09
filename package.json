@@ -2,8 +2,9 @@
   "name": "challenge-sdet",
   "version": "1.0.0",
   "scripts": {
-    "cypress:open": "cypress open",
-    "test": "cypress run",
+    "cy": "cypress open",
+    "test": "cypress run --browser chrome",
+    "test:api": "cypress run --browser chrome --spec \"cypress/e2e/api/**/*.cy.ts\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
@@ -19,5 +20,8 @@
     "eslint-plugin-cypress": "^7.0.3",
     "prettier": "^3.9.10",
     "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
   }
 }
