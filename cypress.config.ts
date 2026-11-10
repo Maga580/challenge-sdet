@@ -1,9 +1,19 @@
 import { defineConfig } from 'cypress'
 
+try {
+  process.loadEnvFile()
+} catch (error) {
+  if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+    throw error
+  }
+}
+
 export default defineConfig({
   e2e: {
+    baseUrl: process.env.BUGGY_BASE_URL,
+    defaultCommandTimeout: 7000,
     specPattern: 'cypress/e2e/**/*.cy.ts',
-    supportFile: 'cypress/support/e2e.ts',
+    supportFile: false,
   },
   component: {
     devServer: {
@@ -12,6 +22,9 @@ export default defineConfig({
     },
   },
   env: {
-    petstoreUrl: process.env.PETSTORE_URL ?? 'https://petstore.swagger.io/v2',
+    petstoreUrl: process.env.PETSTORE_URL,
+  },
+  expose: {
+    ...(process.env.BUGGY_API_URL ? { buggyApiUrl: process.env.BUGGY_API_URL } : {}),
   },
 })

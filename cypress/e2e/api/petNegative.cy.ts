@@ -1,8 +1,8 @@
 import { createPetWithInvalidPayload, deletePet, getPetById, getPetByInvalidId,
     getPetByInvalidStatus, updatePet, type InvalidPetPayload
-} from '../../support/api/petApi'
-import { createPetData } from '../../support/api/petData'
-import { apiResponseSchema } from '../../support/api/petSchemas'
+} from '../../support/petsoreApi/petApi'
+import { createPetData } from '../../support/petsoreApi/petData'
+import { apiResponseSchema } from '../../support/petsoreApi/petSchemas'
 
 describe('Petstore negative pet cases', () => {
   let idsToCleanup: number[] = []

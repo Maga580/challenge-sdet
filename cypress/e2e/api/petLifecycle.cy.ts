@@ -1,6 +1,6 @@
-import { createPet, deletePet, getPetById, updatePet } from '../../support/api/petApi'
-import { createPetData } from '../../support/api/petData'
-import { apiResponseSchema, petSchema } from '../../support/api/petSchemas'
+import { createPet, deletePet, getPetById, updatePet } from '../../support/petsoreApi/petApi'
+import { createPetData } from '../../support/petsoreApi/petData'
+import { apiResponseSchema, petSchema } from '../../support/petsoreApi/petSchemas'
 
 describe('Petstore pet lifecycle', () => {
   let petId: number | undefined
