@@ -1,20 +1,10 @@
-import { HomePage } from '../../pages/HomePage'
 import { NavBarPage } from '../../pages/NavBarPage'
-import {
-  createBuggyUserViaApi,
-  loginViaApi,
-} from '../../support/buggyCars/buggyAuth'
-import { createBuggyUser } from '../../support/buggyCars/buggyUser'
 
-const homePage = new HomePage()
 const navBarPage = new NavBarPage()
 
 describe('Buggy Cars Vote', () => {
   beforeEach(() => {
-    createBuggyUserViaApi(createBuggyUser()).then((user) => {
-      loginViaApi(user)
-    })
-    cy.visit('/')
+    cy.loginAsNewUser()
     navBarPage.logoutButton.should('be.visible')
   })
 

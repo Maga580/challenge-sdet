@@ -1,6 +1,14 @@
-import { createPet, deletePet, getPetById, updatePet } from '../../support/petsoreApi/petApi'
-import { createPetData } from '../../support/petsoreApi/petData'
-import { apiResponseSchema, petSchema } from '../../support/petsoreApi/petSchemas'
+import {
+  createPet,
+  deletePet,
+  getPetById,
+  updatePet,
+} from '../../support/petstoreApi/petApi'
+import { createPetData } from '../../support/petstoreApi/petData'
+import {
+  apiResponseSchema,
+  petSchema,
+} from '../../support/petstoreApi/petSchemas'
 
 describe('Petstore pet lifecycle', () => {
   let petId: number | undefined
@@ -31,12 +39,18 @@ describe('Petstore pet lifecycle', () => {
 
     updatePet({ ...pet, status: 'sold' }).then((response) => {
       expect(response.status).to.eq(200)
-      expect(petSchema.parse(response.body)).to.deep.include({ ...pet, status: 'sold' })
+      expect(petSchema.parse(response.body)).to.deep.include({
+        ...pet,
+        status: 'sold',
+      })
     })
 
     getPetById(pet.id).then((response) => {
       expect(response.status).to.eq(200)
-      expect(petSchema.parse(response.body)).to.deep.include({ ...pet, status: 'sold' })
+      expect(petSchema.parse(response.body)).to.deep.include({
+        ...pet,
+        status: 'sold',
+      })
     })
 
     deletePet(pet.id).then((response) => {

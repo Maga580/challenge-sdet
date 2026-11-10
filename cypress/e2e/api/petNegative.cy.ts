@@ -5,17 +5,11 @@ import {
   getPetByInvalidId,
   getPetByInvalidStatus,
   type InvalidPetPayload,
-} from '../../support/petsoreApi/petApi'
-import { createPetData } from '../../support/petsoreApi/petData'
-import { apiResponseSchema } from '../../support/petsoreApi/petSchemas'
+} from '../../support/petstoreApi/petApi'
+import { createPetData } from '../../support/petstoreApi/petData'
+import { apiResponseSchema } from '../../support/petstoreApi/petSchemas'
 
 describe('Petstore negative pet cases', () => {
-  let idsToCleanup: number[] = []
-
-  afterEach(() => {
-    idsToCleanup.forEach((id) => deletePet(id))
-  })
-
   describe('GET /pet/{petId}', () => {
     const nonExistentId = () => createPetData('available').id
     it('returns 404 for a non-existent id', () => {
@@ -26,7 +20,7 @@ describe('Petstore negative pet cases', () => {
       })
     })
 
-    it('returns 404 for a invalid id ', () => {
+    it('returns 404 for an invalid id format (Swagger: 400)', () => {
       getPetByInvalidId('not-an-id').then((response) => {
         expect(response.status).to.eq(404)
         const parsed = apiResponseSchema.parse(response.body)

@@ -1,5 +1,10 @@
 import { ModelPage } from '../pages/ModelPage'
-import { getBuggyApiUrl } from './buggyCars/buggyAuth'
+import {
+  createBuggyUserViaApi,
+  getBuggyApiUrl,
+  loginViaApi,
+} from './buggyCars/buggyAuth'
+import type { BuggyUser } from './buggyCars/buggyUser'
 
 const modelPage = new ModelPage()
 
@@ -14,7 +19,8 @@ interface ModelsPage {
 }
 
 const getModelsPage = (page: number) =>
-  cy.request<ModelsPage>({
+  cy
+    .request<ModelsPage>({
       url: `${getBuggyApiUrl()}/models`,
       qs: { page },
       log: false,
@@ -25,6 +31,11 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
     interface Chainable {
+      /**
+       * Registers a fresh user through the API, logs in with cy.session (no UI
+       * login) and opens the home page. Yields the created user.
+       */
+      loginAsNewUser(): Chainable<BuggyUser>
       /**
        * Opens the page of the model with the fewest comments (last page of the
        * overall ranking). The most popular model silently drops new comments
@@ -47,6 +58,14 @@ declare global {
     }
   }
 }
+
+Cypress.Commands.add('loginAsNewUser', () => {
+  return createBuggyUserViaApi().then((user) => {
+    loginViaApi(user)
+    cy.visit('/')
+    return cy.wrap(user, { log: false })
+  })
+})
 
 Cypress.Commands.add('openLeastCommentedModel', () => {
   getModelsPage(1).then(({ totalPages }) => {

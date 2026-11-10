@@ -1,34 +1,41 @@
 import type { BuggyUser } from '../support/buggyCars/buggyUser'
 
 export class NavBarPage {
-    get usernameField() {
-        return 'input[name="login"]'
-    }
-    get passwordField() {
-        return 'input[name="password"]'
-    }
-    get loginButton() {
-        return cy.get('button:contains("Login")')
-    }
-    get logoutButton() {
-        return cy.get('a:contains("Logout")')
-    }
-    get registerButton() {
-        return cy.get('a:contains("Register")')
-    }
-    get loginErrorMessage() {
-        return cy.contains('Invalid username/password')
-    }
+  // Raw selectors, for specs that need to build selectors outside a test
+  // (e.g. data-driven cases checking native `:invalid` state).
+  readonly selectors = {
+    usernameField: 'input[name="login"]',
+    passwordField: 'input[name="password"]',
+  } as const
 
-	login(user: BuggyUser): void {
-        cy.get(this.usernameField).clear()
-        if (user.user) cy.get(this.usernameField).type(user.user)
-        cy.get(this.passwordField).clear()
-        if (user.password) cy.get(this.passwordField).type(user.password)
-		this.loginButton.click()
-	}
+  get usernameField() {
+    return cy.get(this.selectors.usernameField)
+  }
+  get passwordField() {
+    return cy.get(this.selectors.passwordField)
+  }
+  get loginButton() {
+    return cy.contains('button', 'Login')
+  }
+  get logoutButton() {
+    return cy.contains('a', 'Logout')
+  }
+  get registerButton() {
+    return cy.contains('a', 'Register')
+  }
+  get loginErrorMessage() {
+    return cy.contains('Invalid username/password')
+  }
 
-	logout(): void {
-		this.logoutButton.click()
-	}
+  login(user: BuggyUser): void {
+    this.usernameField.clear()
+    if (user.user) this.usernameField.type(user.user)
+    this.passwordField.clear()
+    if (user.password) this.passwordField.type(user.password)
+    this.loginButton.click()
+  }
+
+  logout(): void {
+    this.logoutButton.click()
+  }
 }

@@ -41,19 +41,22 @@ describe('Buggy Cars login', () => {
       caseName: 'empty username',
       user: '',
       password: 'Some-pass-1!',
-      invalidFields: [navBarPage.usernameField],
+      invalidFields: [navBarPage.selectors.usernameField],
     },
     {
       caseName: 'empty password',
       user: 'someuser',
       password: '',
-      invalidFields: [navBarPage.passwordField],
+      invalidFields: [navBarPage.selectors.passwordField],
     },
     {
       caseName: 'both fields empty',
       user: '',
       password: '',
-      invalidFields: [navBarPage.usernameField, navBarPage.passwordField],
+      invalidFields: [
+        navBarPage.selectors.usernameField,
+        navBarPage.selectors.passwordField,
+      ],
     },
   ]
 

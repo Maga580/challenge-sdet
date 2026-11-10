@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "scripts": {
     "cy": "cypress open",
-    "test": "npm run test:api && npm run test:ui",
+    "test": "run-s --continue-on-error test:api test:ui",
     "test:api": "cypress run --browser chrome --spec \"cypress/e2e/api/**/*.cy.ts\" --config video=false --reporter-options \"reportDir=cypress/reports/api,reportFilename=api,overwrite=true,ignoreVideos=true\"",
     "test:ui": "cypress run --browser chrome --spec \"cypress/e2e/ui/**/*.cy.ts\" --config video=true --reporter-options \"reportDir=cypress/reports/ui,reportFilename=ui,overwrite=true\"",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "typecheck": "tsc --noEmit"
   },
   "type": "module",
   "devDependencies": {
@@ -21,6 +22,7 @@
     "eslint": "^10.14.0",
     "eslint-plugin-cypress": "^7.0.3",
     "mochawesome": "^8.1.1",
+    "npm-run-all2": "^9.0.4",
     "prettier": "^3.9.10",
     "typescript": "^6.0.3"
   },

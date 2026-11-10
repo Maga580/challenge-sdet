@@ -12,6 +12,9 @@ try {
   }
 }
 
+const definedOnly = (values: Record<string, string | undefined>) =>
+  Object.fromEntries(Object.entries(values).filter(([, value]) => value))
+
 export default defineConfig({
   reporter: 'cypress-mochawesome-reporter',
   reporterOptions: {
@@ -37,18 +40,13 @@ export default defineConfig({
     specPattern: 'cypress/e2e/**/*.cy.ts',
     supportFile: 'cypress/support/e2e.ts',
   },
-  component: {
-    devServer: {
-      framework: 'react',
-      bundler: 'vite',
-    },
-  },
-  env: {
+  // Public services are shared and occasionally inconsistent (e.g. Petstore may
+  // briefly return 404 right after a create). One retry in CI absorbs that noise
+  // without hiding consistently failing tests; interactive runs never retry.
+  retries: { runMode: 1, openMode: 0 },
+  // Non-secret URLs read by the specs through Cypress.expose().
+  expose: definedOnly({
+    buggyApiUrl: process.env.BUGGY_API_URL,
     petstoreUrl: process.env.PETSTORE_URL,
-  },
-  expose: {
-    ...(process.env.BUGGY_API_URL
-      ? { buggyApiUrl: process.env.BUGGY_API_URL }
-      : {}),
-  },
+  }),
 })

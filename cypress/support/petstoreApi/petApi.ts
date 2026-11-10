@@ -1,9 +1,7 @@
+import { getRequiredUrl } from '../config'
 import type { Pet } from './petSchemas'
 
-const getBaseUrl = (): string => {
-  const envConfig = Cypress.config('env') as Record<string, unknown> | undefined
-  return (envConfig?.petstoreUrl as string | undefined) ?? 'https://petstore.swagger.io/v2'
-}
+const getBaseUrl = (): string => getRequiredUrl('petstoreUrl', 'PETSTORE_URL')
 
 export function createPet(pet: Pet) {
   return cy.request({

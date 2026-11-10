@@ -1,78 +1,126 @@
 # challenge-sdet
 
-API testing for Swagger Petstore and UI automation for Buggy Cars Rating, built with Cypress.
+End-to-end test suite built with **Cypress + TypeScript**:
 
-## Local Setup
+- **Part 1 – API:** pet lifecycle and negative cases against [Swagger Petstore](https://petstore.swagger.io/) (`/pet`), with Zod contract validation.
+- **Part 2 – UI:** registration, login, voting and logout on [Buggy Cars Rating](https://buggy.justtestit.org/).
+- **Part 3 – CI:** GitHub Actions running lint, formatting, type checks and both suites on every push, with Mochawesome reports as artifacts.
 
-Requirements: Node.js 22 or later and npm. Install dependencies and configure the public service URLs:
+## Local setup
+
+Requirements: Node.js 22+ and npm. Chrome is used by the test scripts.
 
 ```sh
 npm ci
 cp .env.example .env
 ```
 
-Available commands:
+`.env` holds the environment configuration (no secrets are needed, every test creates its own data):
+
+| Variable         | Used for                                  |
+| ---------------- | ----------------------------------------- |
+| `BUGGY_BASE_URL` | Buggy Cars web app (`baseUrl`)            |
+| `BUGGY_API_URL`  | Buggy Cars API (user setup and API login) |
+| `PETSTORE_URL`   | Petstore API                              |
+
+If a variable is missing, the tests fail immediately with a message naming it.
+
+### Commands
 
 ```sh
-npm test                 # API + UI tests
-npm run test:api         # API tests
-npm run test:ui          # UI tests
-npm run cy               # Open Cypress
+npm test                 # API and UI suites (both always run; fails if either fails)
+npm run test:api         # API suite only
+npm run test:ui          # UI suite only
+npm run cy               # Cypress interactive runner
 npm run lint             # ESLint
-npm run format           # Prettier
-npm run format:check     # Check formatting
+npm run format           # Prettier (write)
+npm run format:check     # Prettier (check only)
+npm run typecheck        # TypeScript, no emit
 ```
 
-Each suite combines all of its specs into one HTML report: `cypress/reports/api/api.html` and `cypress/reports/ui/ui.html`. Cypress saves failure screenshots in `cypress/screenshots/` and retains videos only for failed UI specs in `cypress/videos/`.
+Reports: `cypress/reports/api/api.html` and `cypress/reports/ui/ui.html`. Failed tests have their screenshot embedded in the report; videos are kept only for failed UI specs.
 
-## Structure and Patterns
+> Running from the VS Code integrated terminal? If Cypress fails with `bad option: --smoke-test`, the terminal inherited `ELECTRON_RUN_AS_NODE`. Run `unset ELECTRON_RUN_AS_NODE` first.
 
-- `cypress/e2e/api/` and `cypress/e2e/ui/`: specs organized by suite type.
-- `cypress/support/petsoreApi/`: Petstore API operations, test data, and Zod schemas.
-- `cypress/support/buggyCarsApi/`: API-based registration and authentication for UI test setup.
-- `cypress/pages/`: Page Objects for Buggy Cars navigation, registration, login, and voting.
-- `.github/workflows/ci.yml`: CI validation and automated execution of both suites.
+## Project structure
 
-The UI tests use the Page Object Model (POM) to centralize selectors and repeated actions while keeping business assertions in the specs.
-API support functions organize requests, and Zod validates responses.
-The suites remain independent so each system can be run and diagnosed separately.
-
-## Decisions and Trade-offs
-
-The pet lifecycle is tested as one sequential scenario because each step depends on the previous one, and to avoid multiplying requests against a shared public service. Negative cases are independent tests. With more time, I would add granular tests for each operation with their own setup and cleanup.
-Buggy cars tests that require authentication create unique users and obtain tokens through the API. This reduces shared-state dependencies and speeds up setup, but does not replace testing registration through the UI. The services under test are public and may have variable availability or behavior.
-
-## CI and Artifacts
-
-GitHub Actions runs ESLint and executes the API and UI suites in separate jobs on every push and pull request. Each job uploads its Mochawesome report, failure screenshots, and available videos as an artifact, even if tests fail. No credentials are stored in the repository; the workflow uses the public endpoints listed in the example environment file.
-
-## Future Improvements
-
-With more time, I would use isolated test data or a controlled environment to avoid public-service variability, improve cleanup after network failures, and add historical reporting with Allure. I would also expand accessibility checks and UI state coverage.
-
-## API Negative Test Findings
-
-Tests against Swagger Petstore found differences between the OpenAPI contract and actual responses:
-
-| Case | Expected by OpenAPI | Observed |
-| --- | --- | --- |
-| GET `/pet/{petId}` with a malformed ID | `400` (invalid ID) | `404` |
-| POST `/pet` with a non-numeric ID | `405` (invalid input) | `500` |
-| DELETE `/pet/{petId}` for a non-existent pet | Contract documents `400`/`404` but does not define the response body schema | `404` with a text body instead of an `ApiResponse` object |
-| GET `/pet/findByStatus` with an invalid status | `400` | `200` with an empty list |
-
-## Buggy Cars Rating UI Automation
-
-The UI flows use the Page Object Model: `HomePage` handles navigation and opening models, `RegisterPage` handles registration, `NavBarPage` handles login/logout, and `ModelPage` handles voting. `createBuggyUser` generates a new username and password for each test, so flows do not depend on shared accounts and can run in any order.
-
-Selectors use the fields' existing `name` and `id` attributes and the accessible text of buttons; the site does not expose `data-testid` attributes. No fixed waits are used: Cypress synchronizes through assertions on visible states and content.
-
-The application URL, Buggy Cars API URL, and Petstore URL are configured through `BUGGY_BASE_URL`, `BUGGY_API_URL`, and `PETSTORE_URL`. Locally, copy `.env.example` to `.env`; in CI, the workflow sets these variables. Each test generates a new username and password, so no preconfigured credentials or manually created users are required. Run the UI suite with:
-
-```sh
-npm run test:ui
+```
+cypress/
+├── e2e/
+│   ├── api/                  # Petstore specs (lifecycle, negative cases)
+│   └── ui/                   # Buggy Cars specs (registration, login, vote, logout)
+├── pages/                    # Page Objects: HomePage, NavBarPage, RegisterPage, ModelPage
+└── support/
+    ├── e2e.ts                # Support file: reporter hooks + custom commands
+    ├── commands.ts           # Custom commands (login, voting flow)
+    ├── config.ts             # Reads exposed config and fails fast if missing
+    ├── buggyCars/            # Buggy Cars API helpers: user factory, API login (cy.session)
+    └── petstoreApi/          # Petstore requests, test data factory, Zod schemas
+.github/workflows/ci.yml      # Lint/format/typecheck job + API and UI jobs
 ```
 
-The logout and voting tests create accounts with `createBuggyUserViaApi` and authenticate with `loginViaApi`. It obtains a fresh `access_token` from `POST /oauth/token`, verifies the Bearer token through `/users/current`, and stores the token in `localStorage` before opening the application. If `BUGGY_API_URL` is missing, the helper throws an explicit error. UI registration is tested separately.
+## Patterns and why
 
-The site displays `Invalid username/password` for incorrect credentials. When the form is submitted empty, the `required` fields block submission through native browser validation, and the app does not show its own text message. The test checks the invalid field state and verifies that no session is started.
+**Page Object Model (UI).** Each page class owns its selectors and the user actions on that page (`login`, `register`, `vote`). Specs keep the business assertions, so a selector change touches one file and the specs read as the scenario.
+
+**Custom commands for multi-step flows.** Flows reused across specs, or that would otherwise put logic inside a test, are Cypress commands, typed in `Cypress.Chainable`:
+
+| Command                               | What it does                                                                     |
+| ------------------------------------- | -------------------------------------------------------------------------------- |
+| `cy.loginAsNewUser()`                 | Registers a user through the API, logs in with `cy.session`, opens the home page |
+| `cy.openLeastCommentedModel()`        | Opens the model with the fewest comments (see the voting decision below)         |
+| `cy.voteOnModel(comment)`             | Votes on the open model, waits for the request, yields the previous vote count   |
+| `cy.verifyVoteRegistered(comment, n)` | Checks success message, vote count and the comment in the comments table         |
+
+**Plain API helpers (API suite and test data).** Petstore requests (`petApi.ts`) and data factories are plain functions: they are imported explicitly by the specs that need them, which keeps the API suite independent from UI concerns.
+
+**Contract validation with Zod.** Every Petstore response is parsed with a schema (`petSchemas.ts`) in addition to checking the status code and the relevant fields. The `Pet` type is inferred from the same schema, so payloads and validation stay in sync.
+
+### Selectors
+
+Buggy Cars exposes no `data-testid` attributes. In order of preference the Page Objects use:
+
+1. `id` / `name` attributes (`#comment`, `#username`, `input[name="login"]`).
+2. Accessible text of buttons and links (`cy.contains('button', 'Login')`).
+3. Route-based links (`a[href^="/model/"]`).
+
+No CSS classes or DOM positions are used, so styling changes do not break the tests.
+
+### Waiting
+
+There are no fixed waits. Cypress waits on intercepted requests (`cy.wait('@submitVote')`) and on retried assertions about visible state.
+
+## Technical decisions and trade-offs
+
+- **Test isolation on shared public environments.** Petstore ids are generated from a timestamp plus a random suffix, and the lifecycle test deletes its pet in `afterEach` even if a step fails. Every Buggy Cars test registers its own user, so specs run alone and in any order.
+- **One lifecycle test.** Create → read → update → delete → 404 is one sequential scenario, because each step depends on the previous one and it keeps traffic to the shared service low. The trade-off is that a failure in an early step hides the later ones.
+- **API login for non-login specs.** Vote and logout log in through the API and `cy.session`, since the login form is not what they test. Login itself is tested through the UI in `login.cy.ts`.
+- **Voting on the least-commented model.** The most popular model (Diablo) accepts the vote but silently drops the comment (BUG-01 in [BUGS.md](BUGS.md)). Voting there would make the test fail for a reason unrelated to the flow under test, so `cy.openLeastCommentedModel()` picks a model from the last page of the ranking through the API. The vote count is asserted as "at least +1" because other users can vote concurrently; the unique comment proves the vote is ours.
+- **Empty login fields.** The form uses native `required` validation, so the app shows no message of its own. The tests assert the field is `:invalid`, that the browser's `validationMessage` is present, and that no login request was sent. The message text is not compared because it depends on browser and locale.
+- **Negative API tests pin the observed behavior.** Where Petstore differs from its Swagger documentation, the test asserts what the API actually returns and the title states what Swagger documents (e.g. `returns 500 for a non-numeric id (Swagger: 405)`). The test then works as a regression check and the divergence is listed under _API findings_. The alternative, asserting the documented code, would keep the pipeline permanently red.
+- **One retry in CI.** `retries.runMode: 1` absorbs transient errors from the public services. It is limited to one retry and disabled in interactive mode, so a consistently failing test still fails.
+- **Configuration outside the code.** URLs live in `.env` / CI variables and reach the specs through `Cypress.expose()`. There are no hardcoded fallbacks.
+
+## CI
+
+`.github/workflows/ci.yml` runs on every push and pull request:
+
+- **lint job:** `npm run lint`, `npm run format:check`, `npm run typecheck`.
+- **cypress job:** a matrix runs the API and UI suites in parallel. Each uploads its Mochawesome report, screenshots and videos as an artifact (`cypress-api-results`, `cypress-ui-results`), even when tests fail.
+
+## API findings (Petstore vs. Swagger)
+
+| Case                                           | Documented by Swagger               | Observed                           |
+| ---------------------------------------------- | ----------------------------------- | ---------------------------------- |
+| GET `/pet/{petId}` with a malformed id         | `400` Invalid ID supplied           | `404` with `NumberFormatException` |
+| POST `/pet` with a non-numeric id              | `405` Invalid input                 | `500` "something bad happened"     |
+| DELETE `/pet/{petId}` for a non-existent pet   | `404`, response body not documented | `404` with an empty body           |
+| GET `/pet/findByStatus` with an invalid status | `400` Invalid status value          | `200` with an empty list           |
+
+## Future improvements
+
+- Run against a controlled environment (a local Petstore container, seeded Buggy Cars data) to remove public-service variability.
+- Split the lifecycle into granular tests with their own API setup, once the environment allows it.
+- Add API-level tests for Buggy Cars (voting rules, profile validation) and contract tests for its endpoints.
+- Cross-browser runs in CI and historical reporting (Allure).
+- Accessibility checks (axe) on the main pages.
