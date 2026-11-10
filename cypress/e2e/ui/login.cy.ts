@@ -1,7 +1,7 @@
 import { HomePage } from '../../pages/HomePage'
 import { NavBarPage } from '../../pages/NavBarPage'
-import { createBuggyUserViaApi } from '../../support/buggyCarsApi/buggyAuth'
-import { createBuggyUser } from '../../support/ui/buggyUser'
+import { createBuggyUserViaApi } from '../../support/buggyCars/buggyAuth'
+import { createBuggyUser } from '../../support/buggyCars/buggyUser'
 
 const homePage = new HomePage()
 const navBarPage = new NavBarPage()

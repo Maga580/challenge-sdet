@@ -1,7 +1,7 @@
 import { NavBarPage } from '../../pages/NavBarPage'
 import { RegisterPage } from '../../pages/RegisterPage'
-import { getTokenViaApi } from '../../support/buggyCarsApi/buggyAuth'
-import { createBuggyUser } from '../../support/ui/buggyUser'
+import { getTokenViaApi } from '../../support/buggyCars/buggyAuth'
+import { createBuggyUser } from '../../support/buggyCars/buggyUser'
 
 const navBarPage = new NavBarPage()
 const registerPage = new RegisterPage()

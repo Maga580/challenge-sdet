@@ -1,5 +1,10 @@
-import { createPetWithInvalidPayload, deletePet, getPetById, getPetByInvalidId,
-    getPetByInvalidStatus, updatePet, type InvalidPetPayload
+import {
+  createPetWithInvalidPayload,
+  deletePet,
+  getPetById,
+  getPetByInvalidId,
+  getPetByInvalidStatus,
+  type InvalidPetPayload,
 } from '../../support/petsoreApi/petApi'
 import { createPetData } from '../../support/petsoreApi/petData'
 import { apiResponseSchema } from '../../support/petsoreApi/petSchemas'
@@ -33,18 +38,20 @@ describe('Petstore negative pet cases', () => {
 
   describe('DELETE /pet/{petId}', () => {
     it('returns 404 for a non-existent id', () => {
-        const nonExistentId = () => createPetData('available').id
-        deletePet(nonExistentId()).then((response) => {
-            expect(response.status).to.eq(404)
-        })
+      const nonExistentId = () => createPetData('available').id
+      deletePet(nonExistentId()).then((response) => {
+        expect(response.status).to.eq(404)
+      })
     })
   })
 
   describe('POST /pet', () => {
     it('returns 500 for a non-numeric id (Swagger: 405)', () => {
       // HALLAZGO API-1: Swagger documenta 405 "Invalid input", pero Petstore responde 500.
-      const { id: _id, ...rest } = createPetData('available')
-      const invalidPet: InvalidPetPayload = { ...rest, id: 'not-a-number' }
+      const invalidPet: InvalidPetPayload = {
+        ...createPetData('available'),
+        id: 'not-a-number',
+      }
 
       createPetWithInvalidPayload(invalidPet).then((response) => {
         const parsed = apiResponseSchema.parse(response.body)

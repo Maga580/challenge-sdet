@@ -8,7 +8,7 @@ export class ModelPage {
     get voteButton() {
         return cy.contains('button', 'Vote')
     }
-    get votedMessage() {
+    get votedSuccessMessage() {
         return cy.contains('Thank you for your vote!')
     }
 

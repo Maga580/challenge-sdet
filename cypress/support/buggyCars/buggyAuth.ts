@@ -1,4 +1,4 @@
-import { createBuggyUser, type BuggyUser } from '../ui/buggyUser'
+import { createBuggyUser, type BuggyUser } from './buggyUser'
 
 interface TokenResponse {
   access_token: string

@@ -1,6 +1,6 @@
 import { NavBarPage } from '../../pages/NavBarPage'
-import { createBuggyUserViaApi, loginViaApi } from '../../support/buggyCarsApi/buggyAuth'
-import { createBuggyUser } from '../../support/ui/buggyUser'
+import { createBuggyUserViaApi, loginViaApi } from '../../support/buggyCars/buggyAuth'
+import { createBuggyUser } from '../../support/buggyCars/buggyUser'
 
 const navBarPage = new NavBarPage()
 

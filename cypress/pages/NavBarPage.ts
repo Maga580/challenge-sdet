@@ -1,4 +1,4 @@
-import type { BuggyUser } from '../support/ui/buggyUser'
+import type { BuggyUser } from '../support/buggyCars/buggyUser'
 
 export class NavBarPage {
     get usernameField() {
