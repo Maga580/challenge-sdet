@@ -1,5 +1,4 @@
 import { HomePage } from '../../pages/HomePage'
-import { ModelPage } from '../../pages/ModelPage'
 import { NavBarPage } from '../../pages/NavBarPage'
 import {
   createBuggyUserViaApi,
@@ -8,7 +7,6 @@ import {
 import { createBuggyUser } from '../../support/buggyCars/buggyUser'
 
 const homePage = new HomePage()
-const modelPage = new ModelPage()
 const navBarPage = new NavBarPage()
 
 describe('Buggy Cars Vote', () => {
@@ -21,21 +19,12 @@ describe('Buggy Cars Vote', () => {
   })
 
   it('Records a vote and comment for a model', () => {
-    homePage.openPopularModel()
-    modelPage.voteButton.should('be.visible')
+    const comment = `Automated comment ${Date.now()}`
 
-    let votesBefore: number = 0
-    modelPage.votes.invoke('text').then((text) => {
-      votesBefore = Number(text.trim())
+    cy.openLeastCommentedModel()
+
+    cy.voteOnModel(comment).then((votesBefore) => {
+      cy.verifyVoteRegistered(comment, votesBefore)
     })
-
-    const comment = `Comment ${Date.now()}`
-    cy.intercept('POST', '**/vote').as('submitVote')
-
-    modelPage.vote(comment)
-    cy.wait('@submitVote').its('response.statusCode').should('eq', 200)
-    modelPage.votedSuccessMessage.should('be.visible')
-
-    modelPage.votes.should('contain', votesBefore + 1)
   })
 })

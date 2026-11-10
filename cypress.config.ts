@@ -35,7 +35,7 @@ export default defineConfig({
     baseUrl: process.env.BUGGY_BASE_URL,
     defaultCommandTimeout: 7000,
     specPattern: 'cypress/e2e/**/*.cy.ts',
-    supportFile: false,
+    supportFile: 'cypress/support/e2e.ts',
   },
   component: {
     devServer: {
