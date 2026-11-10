@@ -1,5 +1,6 @@
 import { defineConfig } from 'cypress'
 import { createRequire } from 'node:module'
+import { rm } from 'node:fs/promises'
 
 const require = createRequire(import.meta.url)
 
@@ -25,6 +26,11 @@ export default defineConfig({
   e2e: {
     setupNodeEvents(on) {
       require('cypress-mochawesome-reporter/plugin')(on)
+      on('after:spec', async (_spec, results) => {
+        if (results && results.stats.failures === 0 && results.video) {
+          await rm(results.video, { force: true })
+        }
+      })
     },
     baseUrl: process.env.BUGGY_BASE_URL,
     defaultCommandTimeout: 7000,

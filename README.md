@@ -23,7 +23,7 @@ npm run format           # Prettier
 npm run format:check     # Check formatting
 ```
 
-Each suite combines all of its specs into one HTML report: `cypress/reports/api/api.html` and `cypress/reports/ui/ui.html`. Cypress saves failure screenshots in `cypress/screenshots/` and UI videos in `cypress/videos/`.
+Each suite combines all of its specs into one HTML report: `cypress/reports/api/api.html` and `cypress/reports/ui/ui.html`. Cypress saves failure screenshots in `cypress/screenshots/` and retains videos only for failed UI specs in `cypress/videos/`.
 
 ## Structure and Patterns
 

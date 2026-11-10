@@ -4,7 +4,6 @@
   "scripts": {
     "cy": "cypress open",
     "test": "npm run test:api && npm run test:ui",
-    "test:api": "cypress run --browser chrome --spec \"cypress/e2e/api/**/*.cy.ts\" --config video=false --reporter-options \"reportDir=cypress/reports/api,reportFilename=api,overwrite=true\"",
     "test:api": "cypress run --browser chrome --spec \"cypress/e2e/api/**/*.cy.ts\" --config video=false --reporter-options \"reportDir=cypress/reports/api,reportFilename=api,overwrite=true,ignoreVideos=true\"",
     "test:ui": "cypress run --browser chrome --spec \"cypress/e2e/ui/**/*.cy.ts\" --config video=true --reporter-options \"reportDir=cypress/reports/ui,reportFilename=ui,overwrite=true\"",
     "lint": "eslint .",
