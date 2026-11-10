@@ -1,4 +1,7 @@
 import { defineConfig } from 'cypress'
+import { createRequire } from 'node:module'
+
+const require = createRequire(import.meta.url)
 
 try {
   process.loadEnvFile()
@@ -9,7 +12,20 @@ try {
 }
 
 export default defineConfig({
+  reporter: 'cypress-mochawesome-reporter',
+  reporterOptions: {
+    reportDir: 'cypress/reports',
+    reportFilename: 'mochawesome',
+    overwrite: true,
+    html: true,
+    json: true,
+  },
+  video: false,
+  screenshotOnRunFailure: true,
   e2e: {
+    setupNodeEvents(on) {
+      require('cypress-mochawesome-reporter/plugin')(on)
+    },
     baseUrl: process.env.BUGGY_BASE_URL,
     defaultCommandTimeout: 7000,
     specPattern: 'cypress/e2e/**/*.cy.ts',
@@ -25,6 +41,8 @@ export default defineConfig({
     petstoreUrl: process.env.PETSTORE_URL,
   },
   expose: {
-    ...(process.env.BUGGY_API_URL ? { buggyApiUrl: process.env.BUGGY_API_URL } : {}),
+    ...(process.env.BUGGY_API_URL
+      ? { buggyApiUrl: process.env.BUGGY_API_URL }
+      : {}),
   },
 })

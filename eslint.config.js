@@ -28,6 +28,8 @@ export default [
     rules: {
       ...tsPlugin.configs.recommended.rules,
       ...cypressPlugin.configs.recommended.rules,
+      'no-unused-expressions': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
     },
   },
   {
