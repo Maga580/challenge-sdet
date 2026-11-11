@@ -101,6 +101,29 @@ There are no fixed waits. Cypress waits on intercepted requests (`cy.wait('@subm
 - **One retry in CI.** `retries.runMode: 1` absorbs transient errors from the public services. It is limited to one retry and disabled in interactive mode, so a consistently failing test still fails.
 - **Configuration outside the code.** URLs live in `.env` / CI variables and reach the specs through `Cypress.expose()`. There are no hardcoded fallbacks.
 
+## Test strategy (Buggy Cars)
+
+What I would test next, and at which level. The guiding rule: push each check to the lowest level that can catch the problem, and keep the UI suite for the flows a user must be able to complete.
+
+**API – most of the new tests.** Business rules that today are only visible through the UI are faster and more stable to check against the API:
+
+- Voting rules: a user cannot vote twice on the same model (`400 "Cannot vote more than once"`), cannot vote without a token, and the comment and its author are stored ([BUG-01](BUGS.md), [BUG-02](BUGS.md)).
+- Profile validation: required fields, age range and type ([BUG-03](BUGS.md)), password change with a wrong current password.
+- Registration: duplicate username, password policy.
+- Pagination limits on `/models` ([BUG-05](BUGS.md)).
+
+**Contract.** Zod schemas for `/models`, `/models/{id}`, `/users/current` and `/users/profile`, as already done for Petstore. A change in response shape then fails a fast API test instead of breaking the UI in a less obvious way.
+
+**UI – few tests, critical flows only.** Besides the current flows: profile editing, password change, and navigation (header logo, ranking, pager), which is where [BUG-04](BUGS.md) lives. UI tests would not repeat validations already covered by the API; they check that the screen shows the result and the right message.
+
+**Performance.** A light load test (k6) on `GET /models`, `GET /models/{id}` and `POST /models/{id}/vote`. The most popular model already returns about 335 KB with ~3,700 comments in one response, because comments are not paginated; response time and payload size of that endpoint are the first things I would track.
+
+**Left out of automation**
+
+- Visual and layout review, and exploratory testing: exploration is what found BUG-04, BUG-05 and BUG-06, and it does not translate well into scripted checks.
+- Exact native validation texts, which depend on browser and locale.
+- In-depth security testing (injection, token handling), which belongs to a dedicated security review rather than this suite.
+
 ## CI
 
 `.github/workflows/ci.yml` runs on every push and pull request:
